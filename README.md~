@@ -45,8 +45,6 @@ Next, we will create a database user which we will use to connect to and interac
 ```CREATE USER myprojectuser WITH PASSWORD 'password';```
 
 
-
-
 We are setting the default encoding to UTF-8, which Django expects. We are also setting the default transaction isolation scheme to "read committed", which blocks reads from uncommitted transactions. Lastly, we are setting the timezone. By default, our Django projects will be set to use UTC:
 
 ```ALTER ROLE myprojectuser SET client_encoding TO 'utf8';
@@ -59,9 +57,8 @@ ALTER ROLE myprojectuser SET timezone TO 'UTC';```
 - After successful installation execute the following commands:
 
     ```bash
-    $python3 manage.py makemigrations
-    $python3 manage.py migrate
-    $python3 manage.py runserver
+    $python manage.py migrate
+    $python manage.py runserver
     ```
 
 - Visit `127.0.0.1:8000` in your browser to enjoy the awesome app!
