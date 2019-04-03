@@ -49,9 +49,9 @@ Next, we will create a database user which we will use to connect to and interac
 
 We are setting the default encoding to UTF-8, which Django expects. We are also setting the default transaction isolation scheme to "read committed", which blocks reads from uncommitted transactions. Lastly, we are setting the timezone. By default, our Django projects will be set to use UTC:
 
-```ALTER ROLE myprojectuser SET client_encoding TO 'utf8';
-ALTER ROLE myprojectuser SET default_transaction_isolation TO 'read committed';
-ALTER ROLE myprojectuser SET timezone TO 'UTC';```
+```ALTER ROLE myprojectuser SET client_encoding TO 'utf8';```
+```ALTER ROLE myprojectuser SET default_transaction_isolation TO 'read committed';```
+```ALTER ROLE myprojectuser SET timezone TO 'UTC';```
 
 
 
@@ -63,6 +63,12 @@ ALTER ROLE myprojectuser SET timezone TO 'UTC';```
     $python3 manage.py migrate
     $python3 manage.py runserver
     ```
+    
+After creating the database structure, we can create an administrative account by typing:
+
+```python manage.py createsuperuser```
+
+You will be asked to select a username, provide an email address, and choose and confirm a password for the account.
 
 - Visit `127.0.0.1:8000` in your browser to enjoy the awesome app!
 
