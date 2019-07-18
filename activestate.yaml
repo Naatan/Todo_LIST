@@ -1,0 +1,40 @@
+project: https://platform.activestate.com/ActiveState/Todo?commitID=597e8433-fb02-4af2-b5a5-cd378f74c057
+scripts:
+  - name: psqlc
+    description: Runs psql with our credentials
+    value: psql -U ${secrets.project.PG_USER} -p ${secrets.project.PG_PORT}
+  - name: db_exists
+    description: Checks if the database exists. If this returns nothing it means the database does not exist.
+    value: grep "1 rows" <<<$(${scripts.psqlc} -c "SELECT datname FROM pg_catalog.pg_database WHERE datname='${secrets.project.DB_NAME}'")
+  - name: deploy_db
+    description: Deploys the database (will cause errors if the database is already deployed)
+    value: |
+      echo "Creating database and database user"
+      ${scripts.psqlc} -c "CREATE DATABASE ${secrets.project.DB_NAME}"
+      ${scripts.psqlc} -c "CREATE USER ${secrets.project.DB_USER} WITH PASSWORD '${secrets.project.DB_PASS}'"
+      ${scripts.psqlc} -c "ALTER ROLE ${secrets.project.DB_USER} SET client_encoding TO 'utf8'"
+      ${scripts.psqlc} -c "ALTER ROLE ${secrets.project.DB_USER} SET default_transaction_isolation TO 'read committed'"
+      ${scripts.psqlc} -c "ALTER ROLE ${secrets.project.DB_USER} SET timezone TO 'UTC'"
+
+      echo "Running migrations"
+      python3 todo/manage.py makemigrations
+      python3 todo/manage.py migrate
+  - name: server
+    description: Runs the server
+    value: |
+      exists=$(${scripts.db_exists})
+      if [ -z "$exists" ]
+      then
+        echo "Database does not exist yet, deploying it now"
+        ${scripts.deploy_db}
+      fi
+
+      echo "Starting server"
+      python3 todo/manage.py runserver
+events:
+  - name: ACTIVATE
+    value: |
+      export PG_PORT=${secrets.project.PG_PORT}
+      export DB_NAME=${secrets.project.DB_NAME}
+      export DB_USER=${secrets.project.DB_USER}
+      export DB_PASS=${secrets.project.DB_PASS}
